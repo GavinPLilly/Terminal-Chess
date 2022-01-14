@@ -1,0 +1,7 @@
+New Design Choices
+	- Any piece object should be indistinguishable from any other of the same type
+		(as long as they store the same data)
+	- Moves will be stored on a stack
+		- Easy to test and revert
+	- White = 1, black = -1
+	- Be very stateful about turn
