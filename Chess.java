@@ -68,21 +68,6 @@ public class Chess implements ChessModelObject {
 		initializeMarkers(); // Initialize markers
 	}
 
-	public void runInput(String input) {
-		// Check the syntax
-		// Check move type
-		// 	if castle
-		// 		[castling method]
-		// 		return
-		// 	[normal method]
-		// 	return
-		if(isCastleInput(input)) {
-			handleCastlingInput(input);
-			return
-		}
-		handleNormalInput(input);
-	}
-
 	public int state() {
 		 return this.state;
 	}
@@ -117,38 +102,24 @@ public class Chess implements ChessModelObject {
 		return canEneAttack(this.ownKing);
 	}
 
-	private void handleCastlingInput(String input) {
-		// check that castle is valid
-		if(isValidCastle(input) == false) {
-			this.state = INVALID_MOVE;
-			return;
-		}
-		// execute move and add submoves to stack
-		executeMoveCastle(input);
-		// Update the state var
-		this.state = NEW_BOARD_READY;
+	// TODO
+	public void runInput(String input) {
+		// Check this.state to see if chessObj left in the middle of pawn promotion
+		// Check the syntax
+		// Check move type
+		// 	if castle
+		// 		[castling method]
+		// 		return
+		// 	[normal method]
+		// 	return
 	}
 
-	private void handleNormalInput(String input) {
-		// Update board, change turn, update the state 
-		// Check the game state
+	// TODO
+	private void handleCastlingInput(String input) {
+	}
 
-		// get the start, end coords
-		Coord[] coords = getCoordsFromInput(input);
-		Coord start = coords[0];
-		Coord end = coords[1];
-		// Check validity of move
-		if(isValidMove(start, end) == false) {
-			// isValidMove() will set the state var accordingly
-			// upon a false return
-			return;
-		}
-		// execute move and add submoves to stack
-		executeMove(start, end);
-		// Flip turn
-		flipTurn(); 
-		// update the state var
-		this.state = NEW_BOARD_READY;
+	// TODO
+	private void handleNormalInput(String input) {
 	}
 
 	// ###################################################
@@ -342,10 +313,11 @@ public class Chess implements ChessModelObject {
 		}
 	}
 
+	// TODO
+	// Tests whether the input move results in the mover being in check
 	// Assume that start and end have already been checked with
 	// 	isValidMovement()
 	private boolean movesIntoCheck(Coord start, Coord end) {
-		// TODO
 		// try to move
 		// test with canEneAttack
 		// revert move
@@ -458,186 +430,36 @@ public class Chess implements ChessModelObject {
 	// ###################################################
 
 
+	// TODO
 	// Executes a castle move on the board and adds the submoves 
 	// 	to the moveStack
 	private void executeMoveCastle(String input) {
-		// Queenside case
-		if(isQueenSide(input)) {
-			// White case
-			if(this.turn == WHITE) {
-				// Generating and adding submoves to moveStack
-				Move rookMove = new LMove(this.turn, this.board[0][0], new Coord(0, 0), new Coord(3, 0));
-				this.moveStack.push(rookMove);
-				Move kingMove = new LMove(this.turn, this.board[4][0], new Coord(4, 0), new Coord(2, 0));
-				this.moveStack.push(kingMove);
-
-				// Executing move
-				// Moving the rook
-				this.board[3][0] = this.board[0][0];
-				this.board[0][0] = null;
-				// Moving the king
-				this.board[2][0] = this.board[4][0];
-				this.board[4][0] = null;
-				return;
-			}
-			// Black case
-			// Generating and adding submoves to moveStack
-			Move rookMove = new LMove(this.turn, this.board[0][7], new Coord(0, 7), new Coord(3, 7));
-			this.moveStack.push(rookMove);
-			Move kingMove = new LMove(this.turn, this.board[4][7], new Coord(4, 7), new Coord(2, 7));
-			this.moveStack.push(kingMove);
-
-			// Executing move
-			// Moving the rook
-			this.board[3][7] = this.board[0][7];
-			this.board[0][7] = null;
-			// Moving the king
-			this.board[2][7] = this.board[4][7];
-			this.board[4][7] = null;
-			return;
-		}
-		// Kingside case
-		// White case
-		if(this.turn == WHITE) {
-			Move rookMove = new LMove(this.turn, this.board[7][0], new Coord(7, 0), new Coord(5, 0));
-			this.moveStack.push(rookMove);
-			Move kingMove = new LMove(this.turn, this.board[4][0], new Coord(4, 0), new Coord(6, 0));
-			this.moveStack.push(kingMove);
-
-			// Executing move
-			// Moving the rook
-			this.board[5][0] = this.board[7][0];
-			this.board[7][0] = null;
-			// Moving the king
-			this.board[6][0] = this.board[4][0];
-			this.board[4][0] = null;
-			return;
-		}
-		// Black case
-			Move rookMove = new LMove(this.turn, this.board[7][7], new Coord(7, 7), new Coord(5, 7));
-			this.moveStack.push(rookMove);
-			Move kingMove = new LMove(this.turn, this.board[4][7], new Coord(4, 7), new Coord(6, 7));
-			this.moveStack.push(kingMove);
-
-			// Executing move
-			// Moving the rook
-			this.board[5][7] = this.board[7][7];
-			this.board[7][7] = null;
-			// Moving the king
-			this.board[6][7] = this.board[4][7];
-			this.board[4][7] = null;
-			return;
 	}
 
+	// TODO
 	// Executes a move on the board and add the submoves to the moveStack
 	private void executeMove(Coord start, Coord end) {
-		// Special cases:
-		if(this.board[start.x][start.y].type() == PAWN) {
-			// Pawn jump
-			if(end.y == start.y + (this.turn * 2)) {
-				clearEP();
-				executeMovePawnJumpHelper(start, end);
-				return;
-			}
-		//	Pawn promotion
-			if(end.y == 0 || end.y == 7) {
-				clearEP();
-				executeMovePawnPromotion(start, end);
-				return;
-			}
-			// EP Attack
-			if(this.board[end.x][end.y] != null && this.board[end.x][end.y].type() == EN_PASSANT) {
-				clearEP();
-				executeMoveEPAttackHelper(start, end);
-				return;
-			}
-		}
-		clearEP();
-		// Normal case:
-		executeMoveNormalHelper(start, end);
+		// Generate the submoves and add them to the moveStack
+		// Execute the move on the board
+		// check for check
+		// check for checkmate
 	}
 
+	// TODO
 	private void executeMoveNormalHelper(Coord start, Coord end) {
-		// 	is an enemy is killed push move to stack
-		// 	push locomotive move
-		// 	exe the move
-		// 	set the piece to moved
-		// 	updateOwnArrayCoords
-
-		// Pushing submoves to moveStack
-		
-		Piece killer = this.board[start.x][start.y];
-		Piece victim = this.board[end.x][end.y];
-
-		// Check if a piece is getting killed
-		if(victim != null) {
-			// Add killing move to moveStack
-			this.moveStack.push(new KMove(this.turn, victim, end));
-		}
-		// Add locomotive move to stack
-		this.moveStack.push(new LMove(this.turn, killer, start, end));
-
-		// Executing the move
-
-		// If a piece is getting killed, set it to dead
-		if(victim != null) {
-			victim.setDead();
-		}
-		this.board[end.x][end.y] = killer;
-		this.board[start.x][start.y] = null;
-
-		// update array Coords of killer
-		updateOwnArrayCoords(start, end);
 	}
 
+	// TODO
 	private void executeMovePawnJumpHelper(Coord start, Coord end) {
-		Piece killer = this.board[start.x][start.y];
-
-		// No KMove necessary since a pawn jump is guarantee to not kill a piece
-
-		this.moveStack.push(new LMove(this.turn, killer, start, end));
-
-		// Executing the move
-		this.board[end.x][end.y] = killer;
-		this.board[start.x][start.y] = null;
-
-		// Adding in the new EP marker
-		this.EPMarker = new Coord(start.x, start.y + this.turn);
-		this.board[start.x][start.y + this.turn] = new Piece(this.turn, EN_PASSANT);
-		
-		// update the array Coord of killer
-		updateOwnArrayCoords(start, end);
 	}
 
+	// TODO
 	private void executeMoveEPAttackHelper(Coord start, Coord end) {
-		Coord victimCoord = new Coord(end.x, end.y + (this.turn * -1));
-		Piece killer = this.board[start.x][start.y];
-		Piece victim = this.board[victimCoord.x][victimCoord.y];
-
-		// Add submoves to stack
-		this.moveStack.push(new KMove(this.turn, victim, victimCoord));
-		this.moveStack.push(new LMove(this.turn, killer, start, end));
-
-		// Executing the move
-		// Moving the killer
-		this.board[end.x][end.y] = killer;
-		this.board[start.x][start.y] = null;
-		// Killing the victim
-		this.board[victimCoord.x][victimCoord.y] = null;
-
-		// Updating array Coord of killer
-		updateOwnArrayCoords(start, end);
 	}
 
 	// TODO: some buffing has to happen while execution is handed over
 	// 	to view for the query
 	private void executeMovePawnPromotion(Coord start, Coord end) {
-		// TODO
-		// If returning from a pp input query
-		if(this.state == GET_PP_INPUT) {
-			// TODO
-			// check the syntax
-		}
 	}
 
 	// Updates the coords of a piece being in the array of the ownPieces
@@ -651,6 +473,39 @@ public class Chess implements ChessModelObject {
 		}
 		System.out.println("Something when wrong in updateOwnArrayCoords()");
 		System.exit(1);
+	}
+
+	private void revertMove() {
+		int moveColor = this.moveStack.peek().turn();
+		Move curSubmove;
+		while(this.moveStack.peek() == moveColor) {
+			curSubmove = this.moveStack.pop();
+			if(curSubmove.type() == LMOVE_TYPE) {
+				revertLMove((LMOVE)curSubmove);
+				continue;
+			}
+			if(curSubmove.type() == KMOVE_TYPE) {
+				revertKMove((KMove)curSubmove);
+				continue;
+			}
+			if(curSubmove.type() == SMOVE_TYPE) {
+				revertSMove((SMove)curSubmove);
+				continue;
+			}
+		}
+	}
+
+	private void revertLMove(LMove move) {
+		this.board[move.start().x][move.start().y] = move.piece();
+		this.board[move.end().x][move.end().y] = null;
+	}
+
+	private void revertKMove(KMove move) {
+		this.board[move.spot().x][move.spot().y] = move.piece();
+	}
+
+	private void revertSMove(SMove move) {
+		this.board[move.spot().x][move.spot().y] = null;
 	}
 
 	// ###################################################
@@ -668,6 +523,18 @@ public class Chess implements ChessModelObject {
 			}
 		}
 		return false;
+	}
+
+	private boolean canOwnAttack(int x, int y) {
+		return canOwnAttack(new Coord(x, y));
+	}
+
+	private boolean canOwnAttack(Coord coord) {
+		for(Coord ownCoord : this.ownPieces) {
+			if(isValidMovement(ownCoord, coord)) {
+				return true;
+			}
+		}
 	}
 
 	// ###################################################
@@ -711,10 +578,6 @@ public class Chess implements ChessModelObject {
 		this.moveStack.push(new KMove(this.turn, this.board[EPMarker.x][EPMarker.y], this.EPMarker));
 		this.board[EPMarker.x][EPMarker.y] = null;
 		this.EPMarker = null;
-	}
-
-	// TODO: delete this
-	private int[][] getIntBoard() {
 	}
 
 	// ###################################################
