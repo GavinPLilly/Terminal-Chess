@@ -1,7 +1,7 @@
 import java.util.Stack;
 import java.lang.Math;
 
-public class Chess {
+public class Chess implements ChessModelObject {
 
 	// Colors
 	final int WHITE = 1;
@@ -21,23 +21,43 @@ public class Chess {
 	final int KMOVE_TYPE = 1;
 	final int SMOVE_TYPE = 2;
 
+	// State vars
+	int state;
+	private int turn;
+	boolean check; // indicates whether the next player to move
+		       // is going to be in check already
 
-	Piece[][] board; // [x][y]	[0][0] is bottom left
-	int turn;
-	Stack<Move> moveStack; 
+	final int NEW_BOARD_READY = 0; // new board ready    
+        final int GAME_OVER = 1; // game over    
+        final int GET_MOVE_INPUT = 2; // get move input    
+        final int GET_PP_INPUT = 3; // get pawn promo input    
+        final int INVALID_SYNTAX = 4; // invalid syntax entered    
+        final int INVALID_MOVE = 5; // general invalid move state    
+        final int INVALID_MOVEMENT = 6; // coords entered are invalid    
+        final int CANNOT_MOVE_CHECK = 7;  // invalid move due to moving into check    
+        final int INTERNAL_ERROR = 8; // general internal error state    
+
+
+	// Game variables
+	private Piece[][] board; // [x][y]	[0][0] is bottom left
+	private Stack<Move> moveStack; 
 
 	// General Markers
-	Coord EPMarker;
-	Coord whiteKing; 
-	Coord blackKing;
-	Coord[] whitePieces;
-	Coord[] blackPieces;
+	private Coord EPMarker;
+	private Coord whiteKing; 
+	private Coord blackKing;
+	private Coord[] whitePieces;
+	private Coord[] blackPieces;
 
 	// Turn reliant Markers
-	Coord ownKing; // King of the current turn based on this.turn
-	Coord eneKing; // King of the enemey based on this.turn
-	Coord[] ownPieces;
-	Coord[] enePieces;
+	private Coord ownKing; // King of the current turn based on this.turn
+	private Coord eneKing; // King of the enemey based on this.turn
+	private Coord[] ownPieces;
+	private Coord[] enePieces;
+
+	// Tmp var
+	private Coord savedStart;
+	private Coord savedEnd;
 
 	public Chess() {
 		this.board = new Piece[8][8]; // Initialize board
@@ -48,50 +68,70 @@ public class Chess {
 		initializeMarkers(); // Initialize markers
 	}
 
-	public Message runInput(Message message) {
-		int messageType = message.messageType();
-		// Invalid syntax case
-		if(messageType == 17) {
-			return new IIMessage();
+	public void runInput(String input) {
+		// Check the syntax
+		// Check move type
+		// 	if castle
+		// 		[castling method]
+		// 		return
+		// 	[normal method]
+		// 	return
+		if(isCastleInput(input)) {
+			handleCastlingInput(input);
+			return
 		}
-		// Valid syntax case
-		if(messageType == 16) {
-			message = (VIMessage)message;
-			return handleGeneralInput(((VIMessage)message).input());
-		}
-		if(messageType == 18) {
-			return generateNormalMessage();
-		}
-		// ...
-		return new InternalErrorMessage();
+		handleNormalInput(input);
 	}
 
-	public boolean isGameOver() {
-		// TODO 0
-		return false;
+	public int state() {
+		 return this.state;
 	}
 
-	private Message handleGeneralInput(String input) {
-		if(isCastlingInput(input)) {
-			return handleCastlingInput(input);
+	// Converts the internal representation of the board
+	// 	into an integer grid to be passed on to another object
+	public int[][] getBoard() {
+		int[][] intBoard = new int[8][8];
+		int color;
+		for(int x = 0; x < 8; x++) {
+			for(int y = 0; y < 8; y++) {
+				if(this.board[x][y] == null) {
+					continue;
+				}
+				if(this.board[x][y].color() == BLACK) {
+					color = 7;
+				}
+				else {
+					color = 0;
+				}
+				intBoard[x][y] = this.board[x][y].type() + color;
+			}
 		}
-		return handleNormalInput(input);
+		return intBoard;
 	}
 
-	private Message handleCastlingInput(String input) {
+	public int getTurn() {
+		return this.turn;
+	}
+
+	public int getCheck() {
+		return canEneAttack(this.ownKing);
+	}
+
+	private void handleCastlingInput(String input) {
 		// check that castle is valid
 		if(isValidCastle(input) == false) {
-			return new IMSMessage();
+			this.state = INVALID_MOVE;
+			return;
 		}
 		// execute move and add submoves to stack
 		executeMoveCastle(input);
-		// Generate and return message
-		return generateNormalMessage();
+		// Update the state var
+		this.state = NEW_BOARD_READY;
 	}
 
-	private Message handleNormalInput(String input) {
-		// Update board, change turn
-		// Check the game state and pass the relevant message
+	private void handleNormalInput(String input) {
+		// Update board, change turn, update the state 
+		// Check the game state
 
 		// get the start, end coords
 		Coord[] coords = getCoordsFromInput(input);
@@ -99,15 +139,16 @@ public class Chess {
 		Coord end = coords[1];
 		// Check validity of move
 		if(isValidMove(start, end) == false) {
-			// If invalid, pass message
-			return new IMSMessage();
+			// isValidMove() will set the state var accordingly
+			// upon a false return
+			return;
 		}
 		// execute move and add submoves to stack
 		executeMove(start, end);
 		// Flip turn
 		flipTurn(); 
-		// Generate and return message
-		return generateNormalMessage();
+		// update the state var
+		this.state = NEW_BOARD_READY;
 	}
 
 	// ###################################################
@@ -588,8 +629,15 @@ public class Chess {
 		updateOwnArrayCoords(start, end);
 	}
 
+	// TODO: some buffing has to happen while execution is handed over
+	// 	to view for the query
 	private void executeMovePawnPromotion(Coord start, Coord end) {
 		// TODO
+		// If returning from a pp input query
+		if(this.state == GET_PP_INPUT) {
+			// TODO
+			// check the syntax
+		}
 	}
 
 	// Updates the coords of a piece being in the array of the ownPieces
@@ -665,28 +713,8 @@ public class Chess {
 		this.EPMarker = null;
 	}
 
-	private Message generateNormalMessage() {
-		return new NMessage(getIntBoard(), this.turn, false);
-	}
-
+	// TODO: delete this
 	private int[][] getIntBoard() {
-		int[][] intBoard = new int[8][8];
-		int color;
-		for(int x = 0; x < 8; x++) {
-			for(int y = 0; y < 8; y++) {
-				if(this.board[x][y] == null) {
-					continue;
-				}
-				if(this.board[x][y].color() == BLACK) {
-					color = 7;
-				}
-				else {
-					color = 0;
-				}
-				intBoard[x][y] = this.board[x][y].type() + color;
-			}
-		}
-		return intBoard;
 	}
 
 	// ###################################################

@@ -1,49 +1,89 @@
-public class Printer {
+import java.util.Scanner;
+
+public class Printer implements ChessViewObject {
 
 	final int WHITE = 1;
 	final int BLACK = -1;
 
 	boolean invertedColors;
+	Scanner scanner;
 
-	public Printer(boolean invertedColors) {
-		this.invertedColors = invertedColors;
+	public Printer() {
+		this.scanner = new Scanner(System.in);
 	}
 
-	public void print(Message message) {
-		int messageType = message.messageType();
-		// Invalid input syntax case
-		if(messageType == 17) {
-			invalidSyntax();
-			return;
+	public void init() {
+		System.out.println("Two kings are printed below. What which king is white? Enter L for left, R for right");
+		System.out.println("♔   ♚");
+		System.out.print(":");
+		setInvertedColors();
+	}
+
+	private void setInvertedColors() {
+		String input;
+		while(true) {
+			input = this.scanner.nextLine();
+			input = input.toUpperCase();
+			if(input.equals("L")) {
+				this.invertedColors = false;
+				return;
+			}
+			if(input.equals("R")) {
+				this.invertedColors = true;
+				return;
+			}
+			System.out.print(":");
 		}
-		// Invalid move shape case
-		if(messageType == 1) {
-			invalidMoveShape();
-			return;
+	}
+
+	public String getInput() {
+		return this.scanner.nextLine();
+	}
+
+	public void dispMakeMove() {
+		System.out.println("Enter a move");
+	}
+
+	public void dispPawnPromo() {
+		System.out.println("A pawn in being promoted");
+		System.out.println("Enter the letter for the piece you want to promote to.");
+		System.out.println("q = queen, b = bishop, n = knight, r = rook");
+	}
+
+	public void dispBoard(int[][] board, int turn, boolean check) {
+		printBoard(board);
+		String turnString = turn == WHITE ? "White" : "Black";
+		System.out.println(turnString + " to move.");
+		if(check) {
+			System.out.println("You are in check");
 		}
-		// Moved into check case
-		if(messageType == 3) {
-			movedIntoCheck();
-			return;
-		}
-		// Normal move case
-		if(messageType == 0) {
-			NMessage nm = (NMessage)message; // cast to specific type
-			normalMove(nm.board(), nm.newTurn(), nm.check());
-			return;
-		}
-		// Game over case
-		if(messageType == 2) {
-			GOMessage gm = (GOMessage)message; //cast to specific type
-			gameOver(gm.board(), gm.winner());
-			return;
-		}
-		// Internal error case
-		if(messageType == 99) {
-			internalError();
-			return;
-		}
-		internalError();
+	}
+
+	public void dispGameOver(int[][] board, int winner) {
+		this.printBoard(board);
+		String winnerString = winner == WHITE ? "White" : "Black";
+		System.out.println(winnerString + " wins!");
+	}
+
+	public void dispInvalidSyntax() {
+		System.out.println("Invalid syntax");
+	}
+
+	public void dispInvalidMove() {
+		System.out.println("Invalid move");
+	}
+
+	public void dispInvalidMovementPath() {
+		System.out.println("The coordinates entered are not a valid movement path");
+	}
+
+	public void dispCannotMoveCheck() {
+		System.out.println("You cannnot move into check. Try again");
+	}
+
+	public void dispInternalError() {
+		System.out.println("INTERNAL ERROR");
+		System.exit(1);
 	}
 
 	private void printBoard(int[][] board) {
@@ -169,43 +209,6 @@ public class Printer {
 				System.out.print(" ");
 				break;
 		}
-	}
-
-	private void invalidSyntax() {
-		System.out.println("Invalid syntax entered. Try again: ");
-	}
-
-	private void invalidMoveShape() {
-		System.out.println("Invalid movement path entered. Try again: ");
-	}
-
-	private void movedIntoCheck() {
-		System.out.println("You cannot move into check");
-	}
-
-	private void normalMove(int[][] board, int newTurn, boolean check) {
-		// print board
-		// print whose turn it is
-		// print if in check
-		printBoard(board);
-		String color = (newTurn == WHITE) ? "White" : "Black";
-		if(check) {
-			System.out.println(color + " to move. You are in check");
-		}
-		System.out.println(color + " to move. Enter move: ");
-	}
-
-	private void gameOver(int[][] board, int winner) {
-		// print board
-		// print winner
-		printBoard(board);
-		String color = winner == WHITE ? "White" : "Black";
-		System.out.println("Game over");
-		System.out.println(color +" wins!");
-	}
-
-	private void internalError() {
-		System.out.println("An internal error occured");
 	}
 
 }

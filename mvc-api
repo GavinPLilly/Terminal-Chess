@@ -1,0 +1,39 @@
+Public methods of the three objects
+
+Controller:
+	Getters:
+		int[][] getBoard();
+		int getTurn();
+		boolean getCheck();
+	Actions:
+		runGame();
+Model:
+	Getters:
+		int state();
+		int[][] getBoard();
+		int getTurn();
+		boolean getCheck();
+	Actions:
+		void runInput();
+View:
+	Getters:
+		String getInput();
+	Actions:
+		void dispBoard(int[][] board, int turn, boolean check);
+		void dispGameOver(int[][] board, int winner);
+		void dispInvalidSyntax();
+		void dispInvalidMove();
+		void dispInvalidMovementPath();
+		void dispCannotMoveCheck();
+		void dispInternalError();
+
+state values = {
+			0: New board ready
+			1: Game over
+			2: Get move input
+			3: Get pawn promo input
+			4: Invalid syntax, try again
+			5: Invalid move (general), try again
+			6: Invalid movement, try again
+			7: Cannot move into check, try again
+			8: Internal error

@@ -15,6 +15,7 @@ moveType = {
 		2: spawning new piece
            }
 
+(Yikes)
 messageType = {
 		// Chess -> Printer
 		0: normal message, NMessage
@@ -62,4 +63,8 @@ board ints (for NMessage int[][] board)
 		14: En Passant
 	     }
 
-// TODO: Add turn value to every move obj
+chess state var = {
+		0: Ready for print board
+		1: Needs input move
+		2: Needs pawn promomotion input
+		}
