@@ -1,9 +1,0 @@
-Update program structure so:
-		- Move syntaxChecker() to Chess object
-		- Add a public state variable to Chess object to denote what kind of input it's looking for
-		- Reader gets removed
-		- GameRunner becomes a full controller object
-		- Printer becomes a full View object
-		- 
-
-Look into being able to remove the .dead attribute from Piece objs
