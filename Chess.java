@@ -98,7 +98,7 @@ public class Chess implements ChessModelObject {
 		return this.turn;
 	}
 
-	public int getCheck() {
+	public boolean getCheck() {
 		return canEneAttack(this.ownKing);
 	}
 
@@ -478,17 +478,17 @@ public class Chess implements ChessModelObject {
 	private void revertMove() {
 		int moveColor = this.moveStack.peek().turn();
 		Move curSubmove;
-		while(this.moveStack.peek() == moveColor) {
+		while(this.moveStack.peek().turn() == moveColor) {
 			curSubmove = this.moveStack.pop();
-			if(curSubmove.type() == LMOVE_TYPE) {
-				revertLMove((LMOVE)curSubmove);
+			if(curSubmove.moveType() == LMOVE_TYPE) {
+				revertLMove((LMove)curSubmove);
 				continue;
 			}
-			if(curSubmove.type() == KMOVE_TYPE) {
+			if(curSubmove.moveType() == KMOVE_TYPE) {
 				revertKMove((KMove)curSubmove);
 				continue;
 			}
-			if(curSubmove.type() == SMOVE_TYPE) {
+			if(curSubmove.moveType() == SMOVE_TYPE) {
 				revertSMove((SMove)curSubmove);
 				continue;
 			}
@@ -535,6 +535,7 @@ public class Chess implements ChessModelObject {
 				return true;
 			}
 		}
+		return false;
 	}
 
 	// ###################################################

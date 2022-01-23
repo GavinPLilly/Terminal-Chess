@@ -4,9 +4,9 @@ public class SMove extends Move {
 	final private Piece piece;
 	final private Coord spot;
 
-	public SMove(int turn, piece Piece, Coord spot) {
+	public SMove(int turn, Piece piece , Coord spot) {
 		super(2, turn);
-		this.piece = Piece.copy();
+		this.piece = piece.copy();
 		this.spot = spot.copy();
 	}
 
